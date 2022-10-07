@@ -13,5 +13,5 @@ interface BalanceDao {
     suspend fun getAllBalances(): List<Balance>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertBalance(balance: Balance)
+    fun insertBalance(balance: Balance)
 }

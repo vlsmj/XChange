@@ -31,10 +31,11 @@ fun MainScreen(
     currencyViewModel: CurrencyViewModel = hiltViewModel(),
     balanceViewModel: BalanceViewModel = hiltViewModel(),
 ) {
+    val currencies = stringArrayResource(id = R.array.array_currency_codes)
+
     val rateState = currencyViewModel.rateState.value
     val balanceState = balanceViewModel.balanceState.value
 
-    val currencies = stringArrayResource(id = R.array.array_currency_codes)
 
 //    Dialog(onDismissRequest = {
 //

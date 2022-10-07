@@ -15,4 +15,8 @@ class BalanceRepositoryImpl @Inject constructor(
     override suspend fun getAllBalances(): Flow<Resource<List<Balance>>> = flow {
         emit(Resource.Success(balanceDao.getAllBalances()))
     }
+
+    override fun insertBalance(balance: Balance) {
+        balanceDao.insertBalance(balance)
+    }
 }

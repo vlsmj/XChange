@@ -3,6 +3,7 @@ package com.blueberryprojects.xchange.di
 import android.app.Application
 import androidx.room.Room
 import com.blueberryprojects.xchange.common.Constants.BASE_URL
+import com.blueberryprojects.xchange.common.PrefManager
 import com.blueberryprojects.xchange.featurexchange.data.datasource.BalanceDao
 import com.blueberryprojects.xchange.featurexchange.data.datasource.ExchangeDatabase
 import com.blueberryprojects.xchange.featurexchange.data.remote.ExchangeRateApi
@@ -10,6 +11,7 @@ import com.blueberryprojects.xchange.featurexchange.domain.repository.BalanceRep
 import com.blueberryprojects.xchange.featurexchange.domain.repository.CurrencyRepository
 import com.blueberryprojects.xchange.featurexchange.domain.usecase.GetAllBalancesUseCase
 import com.blueberryprojects.xchange.featurexchange.domain.usecase.GetCurrencyExchangeRate
+import com.blueberryprojects.xchange.featurexchange.domain.usecase.InsertBalanceUseCase
 import com.blueberryprojects.xchange.featurexchange.domain.usecase.UseCasesExchange
 import dagger.Module
 import dagger.Provides
@@ -50,10 +52,16 @@ object AppModule {
             .create(ExchangeRateApi::class.java)
     }
 
+
+    @Provides
+    @Singleton
+    fun providesPrefManager(application: Application): PrefManager = PrefManager(application)
+
     @Provides
     @Singleton
     fun provideUseCasesExchange(balanceRepository: BalanceRepository, currencyRepository: CurrencyRepository) = UseCasesExchange(
         GetAllBalancesUseCase(balanceRepository),
+        InsertBalanceUseCase(balanceRepository),
         GetCurrencyExchangeRate(currencyRepository)
     )
 

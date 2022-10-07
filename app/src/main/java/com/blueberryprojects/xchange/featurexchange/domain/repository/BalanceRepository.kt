@@ -7,4 +7,6 @@ import kotlinx.coroutines.flow.Flow
 interface BalanceRepository {
 
     suspend fun getAllBalances(): Flow<Resource<List<Balance>>>
+
+    fun insertBalance(balance: Balance)
 }
