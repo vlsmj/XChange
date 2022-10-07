@@ -16,14 +16,14 @@ class BalanceViewModel @Inject constructor(
     private val useCasesExchange: UseCasesExchange,
 ) : ViewModel() {
 
-    var balances = mutableStateOf(BalancesState())
+    var balanceState = mutableStateOf(BalancesState())
 
     fun getAllBalances() {
         useCasesExchange.balancesUseCase().onEach {
             when (it) {
                 is Resource.Success -> {
                     it.data?.let { data ->
-                        balances.value = balances.value.copy(
+                        balanceState.value = balanceState.value.copy(
                             data = data
                         )
                     }

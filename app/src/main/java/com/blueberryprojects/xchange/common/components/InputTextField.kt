@@ -14,13 +14,16 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun InputTextField(
     modifier: Modifier,
     hint: String,
+    isEnabled: Boolean? = true,
     onValueChange: (input: String) -> Unit,
 ) {
     var textState by remember {
@@ -31,17 +34,19 @@ fun InputTextField(
         modifier = modifier,
         value = textState,
         textStyle = TextStyle(
-            color = Color.Black
+            color = Color.Black,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.SemiBold
         ),
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
+            keyboardType = KeyboardType.NumberPassword,
             autoCorrect = false
         ),
         onValueChange = {
             textState = it
             onValueChange(textState)
         },
-        enabled = true,
+        enabled = isEnabled ?: true,
         singleLine = true,
         cursorBrush = SolidColor(Color.Black),
         decorationBox = { innerTextField ->
@@ -57,9 +62,12 @@ fun InputTextField(
                 ) {
                     if (textState.isEmpty()) {
                         Text(
-                            modifier = Modifier.alpha(0.5f),
+                            modifier = Modifier
+                                .alpha(0.5f)
+                                .fillMaxWidth(),
                             text = hint,
                             color = Color.Black,
+                            textAlign = TextAlign.Center,
                         )
                     }
                     innerTextField()
