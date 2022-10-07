@@ -218,15 +218,17 @@ fun MainScreen(
                                 balance = balanceAfterFee
                             }
 
+                            val toExchangedBalanceAfterFee = balanceViewModel.getBalanceAfterFee(toAmount.toDouble(), commissionFee)
+
                             val toBalance = Balance().apply {
                                 currency = toSelectedCurrency
-                                balance = toAmount.toDouble()
+                                balance = toExchangedBalanceAfterFee
                             }
 
                             balanceViewModel.insertBalance(fromBalance, toBalance)
 
                             val message =
-                                "You have converted ${balanceAfterFee.formatAmount()} $fromSelectedCurrency to $toAmount $toSelectedCurrency. Commission Fee - ${commissionFee.formatAmount()} $fromSelectedCurrency."
+                                "You have converted ${balanceAfterFee.formatAmount()} $fromSelectedCurrency to ${toExchangedBalanceAfterFee.formatAmount()} $toSelectedCurrency. Commission Fee - ${commissionFee.formatAmount()} $fromSelectedCurrency."
 
                             titleDialog = "Currency converted"
                             messageDialog = message

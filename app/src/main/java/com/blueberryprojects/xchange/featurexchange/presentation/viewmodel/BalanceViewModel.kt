@@ -49,7 +49,9 @@ class BalanceViewModel @Inject constructor(
             return 0.00
         }
 
-        return inputAmount * Constants.COMMISSION_FEE_RATE
+        val commissionFee = inputAmount * Constants.COMMISSION_FEE_RATE
+
+        return commissionFee
     }
 
     fun getBalanceAfterFee(inputAmount: Double, commissionFee: Double): Double {
