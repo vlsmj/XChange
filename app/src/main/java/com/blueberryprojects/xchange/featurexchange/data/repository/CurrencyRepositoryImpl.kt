@@ -22,18 +22,6 @@ class CurrencyRepositoryImpl @Inject constructor(
             val convertedAmount = api.convertCurrency(from, to, amount)
 
             emit(Resource.Success(convertedAmount.toRate()))
-
-
-//            val convertedAmount = api.convertCurrency(from, to, amount)
-//
-//            val newBalance = Balance().apply {
-//                currency = to
-//                balance = convertedAmount.toConvert().result
-//            }
-//
-//            balanceDao.insertBalance(newBalance)
-//
-//            emit(Resource.Success(balanceDao.getAllBalances()))
         } catch (e: HttpException) {
             emit(Resource.Error(UiText.StringResource(R.string.error_exception_message)))
         } catch (e: IOException) {
