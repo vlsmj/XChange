@@ -11,18 +11,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.blueberryprojects.xchange.featurexchange.domain.model.Balance
 
 @Composable
 fun CurrencyListItem(
-    currency: String,
-    onCurrencyClick: (currency: String) -> Unit,
+    balance: Balance,
+    onCurrencyClick: (balance: Balance) -> Unit,
 ) {
     Box(Modifier
         .clickable {
-            onCurrencyClick(currency)
+            onCurrencyClick(balance)
         }
         .padding(16.dp)) {
-        Text(text = currency,
+        Text(text = balance.currency,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp,
             modifier = Modifier.fillMaxWidth(),

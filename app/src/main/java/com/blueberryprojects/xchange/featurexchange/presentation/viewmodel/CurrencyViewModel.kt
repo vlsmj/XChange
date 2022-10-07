@@ -7,6 +7,7 @@ import com.blueberryprojects.xchange.common.util.Resource
 import com.blueberryprojects.xchange.featurexchange.domain.usecase.UseCasesExchange
 import com.blueberryprojects.xchange.featurexchange.presentation.state.RateState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -17,10 +18,18 @@ class CurrencyViewModel @Inject constructor(
     private val useCasesExchange: UseCasesExchange,
 ) : ViewModel() {
 
+    var job: Job? = null
+
     var rateState = mutableStateOf(RateState())
 
     fun getCurrencyExchangeRate(from: String, to: String, amount: Double) {
-        viewModelScope.launch {
+        job?.let {
+            if (it.isActive) {
+                it.cancel()
+            }
+        }
+
+        job = viewModelScope.launch {
             while (true) {
                 useCasesExchange.getCurrencyExchangeRate(from, to, amount).collectLatest {
                     when (it) {

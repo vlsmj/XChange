@@ -14,15 +14,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.blueberryprojects.xchange.featurexchange.domain.model.Balance
 
 @Composable
 fun CurrencyDialog(
-    currencies: Array<String>,
-    onCurrencyClick: (currency: String) -> Unit,
+    currencies: List<Balance>,
+    onCurrencyClick: (balance: Balance) -> Unit,
+    onDismiss: () -> Unit,
 ) {
     Dialog(onDismissRequest = {
-
-    }, content = {
+        onDismiss()
+    }, properties = DialogProperties(
+        dismissOnBackPress = true,
+        dismissOnClickOutside = true
+    ), content = {
         Column(modifier = Modifier
             .height(320.dp)
             .background(Color.White)) {
@@ -33,7 +39,7 @@ fun CurrencyDialog(
                     .padding(16.dp))
             LazyColumn {
                 items(currencies) { item ->
-                    CurrencyListItem(currency = item) {
+                    CurrencyListItem(balance = item) {
                         onCurrencyClick(it)
                     }
                 }

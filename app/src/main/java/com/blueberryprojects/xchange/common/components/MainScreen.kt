@@ -1,6 +1,7 @@
 package com.blueberryprojects.xchange.common.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,7 +10,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.blueberryprojects.xchange.R
+import com.blueberryprojects.xchange.featurexchange.domain.model.Balance
 import com.blueberryprojects.xchange.featurexchange.presentation.viewmodel.BalanceViewModel
 import com.blueberryprojects.xchange.featurexchange.presentation.viewmodel.CurrencyViewModel
 
@@ -31,32 +33,97 @@ fun MainScreen(
     currencyViewModel: CurrencyViewModel = hiltViewModel(),
     balanceViewModel: BalanceViewModel = hiltViewModel(),
 ) {
-    val currencies = stringArrayResource(id = R.array.array_currency_codes)
-
     val rateState = currencyViewModel.rateState.value
     val balanceState = balanceViewModel.balanceState.value
 
+    var messageDialog by remember {
+        mutableStateOf("")
+    }
 
-//    Dialog(onDismissRequest = {
-//
-//    }, content = {
-//        Column(modifier = Modifier
-//            .height(320.dp)
-//            .background(Color.White)) {
-//            Text(text = "Select Currency",
-//                textAlign = TextAlign.Center,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(16.dp))
-//            LazyColumn {
-//                items(currencies) { item ->
-//                    CurrencyListItem(currency = item) {
-//
-//                    }
-//                }
-//            }
-//        }
-//    })
+    var titleDialog by remember {
+        mutableStateOf("Oops!")
+    }
+
+    var isFromSelected by remember {
+        mutableStateOf(false)
+    }
+
+    var fromSelectedCurrency by remember {
+        mutableStateOf("Select")
+    }
+
+    var fromInputAmount by remember {
+        mutableStateOf("")
+    }
+
+    var toAmount by remember {
+        mutableStateOf("")
+    }
+
+    var currentMaxBalance by remember {
+        mutableStateOf(0.00)
+    }
+
+    var toSelectedCurrency by remember {
+        mutableStateOf("Select")
+    }
+
+    var isToSelected by remember {
+        mutableStateOf(false)
+    }
+
+    if (messageDialog.isNotBlank()) {
+        MessageDialog(titleDialog, messageDialog) {
+            messageDialog = ""
+        }
+    }
+
+    val userCurrencies = balanceState.data
+    val allCurrencies = stringArrayResource(id = R.array.array_currency_codes).map {
+        Balance().apply {
+            currency = it
+            balance = 0.00
+        }
+    }
+
+    if (isFromSelected) {
+        CurrencyDialog(currencies = userCurrencies, onCurrencyClick = {
+            isFromSelected = false
+            fromSelectedCurrency = it.currency
+            fromInputAmount = ""
+            toAmount = ""
+            currentMaxBalance = it.balance
+        }) {
+            isFromSelected = false
+        }
+    }
+
+    if (isToSelected) {
+        CurrencyDialog(currencies = allCurrencies.toList(), onCurrencyClick = {
+            isToSelected = false
+            toSelectedCurrency = it.currency
+        }) {
+            isToSelected = false
+        }
+    }
+
+    if (fromInputAmount.isNotBlank() && fromInputAmount.toDouble() > 0.00) {
+        LaunchedEffect(key1 = fromInputAmount) {
+            currencyViewModel.getCurrencyExchangeRate(fromSelectedCurrency, toSelectedCurrency, fromInputAmount.toDouble())
+        }
+
+        LaunchedEffect(key1 = toSelectedCurrency) {
+            currencyViewModel.getCurrencyExchangeRate(fromSelectedCurrency, toSelectedCurrency, fromInputAmount.toDouble())
+        }
+    }
+
+    rateState.data?.let {
+        toAmount = String.format("%.2f", it.result)
+    }
+
+    if (fromInputAmount == "") {
+        toAmount = ""
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier
@@ -80,13 +147,25 @@ fun MainScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .weight(1f)) {
-                        Text(text = "EUR",
-                            fontSize = 18.sp)
+                        Text(text = fromSelectedCurrency,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            modifier = Modifier.clickable {
+                                isFromSelected = true
+                            })
                         Spacer(modifier = Modifier.height(8.dp))
                         InputTextField(modifier = Modifier
+                            .clickable {
+                                if (fromSelectedCurrency == "Select" || toSelectedCurrency == "Select") {
+                                    messageDialog = "Please select currencies first."
+                                }
+                            }
                             .fillMaxWidth(),
-                            hint = "From") { input ->
-
+                            hint = "From",
+                            text = fromInputAmount,
+                            maxValue = currentMaxBalance,
+                            isEnabled = fromSelectedCurrency != "Select" && toSelectedCurrency != "Select") { input ->
+                            fromInputAmount = input
                         }
                     }
                     Column(verticalArrangement = Arrangement.Center,
@@ -104,15 +183,18 @@ fun MainScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .weight(1f)) {
-                        Text(text = "USD",
-                            fontSize = 18.sp)
+                        Text(text = toSelectedCurrency,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            modifier = Modifier.clickable {
+                                isToSelected = true
+                            })
                         Spacer(modifier = Modifier.height(8.dp))
                         InputTextField(modifier = Modifier
                             .fillMaxWidth(),
                             hint = "To",
-                            isEnabled = false) { input ->
-
-                        }
+                            text = toAmount,
+                            isEnabled = false) {}
                     }
                 }
                 Spacer(modifier = Modifier.height(18.dp))
@@ -121,7 +203,7 @@ fun MainScreen(
                 }, modifier = Modifier
                     .fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
-                    Text(text = "Convert",
+                    Text(text = "Exchange",
                         fontSize = 16.sp,
                         color = Color.Black,
                         textAlign = TextAlign.Center)
@@ -145,43 +227,4 @@ fun MainScreen(
             }
         }
     }
-
-
-//
-//    Column(modifier = Modifier.fillMaxSize()) {
-//
-//        Text(text = "CURRENCY EXCHANGE")
-//        Spacer(modifier = Modifier.height(24.dp))
-//        Row(modifier = Modifier
-//            .fillMaxWidth()) {
-//            InputTextField(modifier = Modifier.weight(1f), hint = "From") { input ->
-//
-//            }
-//            Text(text = "USD",
-//                modifier = Modifier.weight(1f))
-//            Icon(painterResource(id = R.drawable.ic_baseline_arrow_drop_down_24),
-//                contentDescription = "dropdown",
-//                modifier = Modifier.weight(1f))
-//            InputTextField(modifier = Modifier.weight(1f), hint = "From") { input ->
-//
-//            }
-//            Text(text = "PHP",
-//                modifier = Modifier.weight(1f))
-//            Icon(painterResource(id = R.drawable.ic_baseline_arrow_drop_down_24),
-//                contentDescription = "dropdown",
-//                modifier = Modifier.weight(1f))
-//        }
-//    }
-
-//    Column {
-//        rateState.data?.let {
-//            Text(text = "${it.result}")
-//        }
-//
-//        Button(onClick = {
-//            currencyViewModel.getCurrencyExchangeRate("PHP", "USD", 1.00)
-//        }) {
-//            Text("Exchange")
-//        }
-//    }
 }
