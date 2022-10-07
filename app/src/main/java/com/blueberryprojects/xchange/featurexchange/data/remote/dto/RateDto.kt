@@ -8,12 +8,7 @@ data class RateDto(
 )
 
 fun RateDto.toRate(): Rate {
-
-    val result = this.result
-
-    // subtract commission here...
-
     return Rate(
-        result = result
+        result = this.result
     )
 }

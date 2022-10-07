@@ -3,6 +3,7 @@ package com.blueberryprojects.xchange.featurexchange.presentation.viewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.blueberryprojects.xchange.common.Constants.REFRESH_TIME
 import com.blueberryprojects.xchange.common.util.Resource
 import com.blueberryprojects.xchange.featurexchange.domain.usecase.UseCasesExchange
 import com.blueberryprojects.xchange.featurexchange.presentation.state.RateState
@@ -22,12 +23,16 @@ class CurrencyViewModel @Inject constructor(
 
     var rateState = mutableStateOf(RateState())
 
-    fun getCurrencyExchangeRate(from: String, to: String, amount: Double) {
+    fun stopJob() {
         job?.let {
             if (it.isActive) {
                 it.cancel()
             }
         }
+    }
+
+    fun getCurrencyExchangeRate(from: String, to: String, amount: Double) {
+        stopJob()
 
         job = viewModelScope.launch {
             while (true) {
@@ -47,7 +52,7 @@ class CurrencyViewModel @Inject constructor(
                         else -> {}
                     }
                 }
-                delay(5000)
+                delay(REFRESH_TIME)
             }
         }
     }

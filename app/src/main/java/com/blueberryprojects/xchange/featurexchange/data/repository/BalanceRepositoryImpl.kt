@@ -16,15 +16,15 @@ class BalanceRepositoryImpl @Inject constructor(
         emit(Resource.Success(balanceDao.getAllBalances()))
     }
 
-    override fun insertBalance(from: Balance?, balance: Balance) {
-        from?.let {
+    override fun insertBalance(fromBalance: Balance?, toBalance: Balance) {
+        fromBalance?.let {
             balanceDao.updateBalance(it.currency, it.balance)
         }
 
-        balanceDao.getBalance(balance.currency)?.let {
-            balance.balance += it.balance
+        balanceDao.getBalance(toBalance.currency)?.let {
+            toBalance.balance += it.balance
         }
 
-        balanceDao.insertBalance(balance)
+        balanceDao.insertBalance(toBalance)
     }
 }

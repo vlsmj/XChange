@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.blueberryprojects.xchange.R
+import com.blueberryprojects.xchange.common.extensions.formatAmount
 import com.blueberryprojects.xchange.featurexchange.domain.model.Balance
 import com.blueberryprojects.xchange.featurexchange.presentation.viewmodel.BalanceViewModel
 import com.blueberryprojects.xchange.featurexchange.presentation.viewmodel.CurrencyViewModel
@@ -118,11 +119,12 @@ fun MainScreen(
     }
 
     rateState.data?.let {
-        toAmount = String.format("%.2f", it.result)
+        toAmount = it.result.formatAmount()
     }
 
     if (fromInputAmount == "") {
         toAmount = ""
+        currencyViewModel.stopJob()
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -157,6 +159,7 @@ fun MainScreen(
                         InputTextField(modifier = Modifier
                             .clickable {
                                 if (fromSelectedCurrency == "Select" || toSelectedCurrency == "Select") {
+                                    titleDialog = "Oops!"
                                     messageDialog = "Please select currencies first."
                                 }
                             }
@@ -202,16 +205,40 @@ fun MainScreen(
                     if (toSelectedCurrency.isNotBlank()
                         && toAmount.isNotBlank() && toAmount.toDouble() > 0.00
                     ) {
-                        val from = Balance().apply {
-                            currency = fromSelectedCurrency
-                            balance = fromInputAmount.toDouble()
-                        }
-                        val to = Balance().apply {
-                            currency = toSelectedCurrency
-                            balance = toAmount.toDouble()
-                        }
+                        val inputAmount = fromInputAmount.toDouble()
+                        val commissionFee = balanceViewModel.getCommissionFee(inputAmount, fromSelectedCurrency)
+                        val balanceAfterFee = balanceViewModel.getBalanceAfterFee(inputAmount, commissionFee)
 
-                        balanceViewModel.insertBalance(from, to)
+                        if (inputAmount + commissionFee > currentMaxBalance) {
+                            titleDialog = "Oops!"
+                            messageDialog = "Insufficient funds after fee."
+                        } else {
+                            val fromBalance = Balance().apply {
+                                currency = fromSelectedCurrency
+                                balance = balanceAfterFee
+                            }
+
+                            val toBalance = Balance().apply {
+                                currency = toSelectedCurrency
+                                balance = toAmount.toDouble()
+                            }
+
+                            balanceViewModel.insertBalance(fromBalance, toBalance)
+
+                            val message =
+                                "You have converted ${balanceAfterFee.formatAmount()} $fromSelectedCurrency to $toAmount $toSelectedCurrency. Commission Fee - ${commissionFee.formatAmount()} $fromSelectedCurrency."
+
+                            titleDialog = "Currency converted"
+                            messageDialog = message
+
+                            fromInputAmount = ""
+                            toAmount = ""
+                            fromSelectedCurrency = "Select"
+                            toSelectedCurrency = "Select"
+                        }
+                    } else {
+                        titleDialog = "Oops!"
+                        messageDialog = "Please select the amount first."
                     }
                 }, modifier = Modifier
                     .fillMaxWidth(),
@@ -229,7 +256,8 @@ fun MainScreen(
             .background(Color.LightGray)) {
             Text(text = "MY BALANCES",
                 color = Color.DarkGray,
-                modifier = Modifier.padding(8.dp))
+                fontSize = 12.sp,
+                modifier = Modifier.padding(6.dp))
         }
 
         LazyColumn(

@@ -36,6 +36,10 @@ fun InputTextField(
         onValueChange(text.substring(0, text.length - 1))
     }
 
+    if (text.isNotBlank() && text.substring(0, 1) == "0") {
+        onValueChange("")
+    }
+
     BasicTextField(
         modifier = modifier,
         value = text,

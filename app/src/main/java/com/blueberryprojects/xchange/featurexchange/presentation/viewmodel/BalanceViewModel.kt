@@ -3,6 +3,7 @@ package com.blueberryprojects.xchange.featurexchange.presentation.viewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.blueberryprojects.xchange.common.Constants
 import com.blueberryprojects.xchange.common.PrefManager
 import com.blueberryprojects.xchange.common.util.Resource
 import com.blueberryprojects.xchange.featurexchange.domain.model.Balance
@@ -24,7 +25,7 @@ class BalanceViewModel @Inject constructor(
 
     init {
         if (prefManager.isInitialLaunch) {
-            insertBalance(balance = Balance().apply {
+            insertBalance(toBalance = Balance().apply {
                 currency = "EUR"
                 balance = 1000.00
             })
@@ -36,7 +37,26 @@ class BalanceViewModel @Inject constructor(
 
     var balanceState = mutableStateOf(BalancesState())
 
-    fun getAllBalances() {
+    fun getCommissionFee(inputAmount: Double, currency: String): Double {
+        // Free conversion up to $FREE_CONVERSION_COUNT value
+        if (prefManager.freeConversionCount > 0) {
+            prefManager.freeConversionCount -= 1
+            return 0.00
+        }
+
+        // Free conversion if currency is selected to EUR and amount is more than or equal to 200.00
+        if (currency == "EUR" && inputAmount >= 200.00) {
+            return 0.00
+        }
+
+        return inputAmount * Constants.COMMISSION_FEE_RATE
+    }
+
+    fun getBalanceAfterFee(inputAmount: Double, commissionFee: Double): Double {
+        return inputAmount - commissionFee
+    }
+
+    private fun getAllBalances() {
         useCasesExchange.balancesUseCase().onEach {
             when (it) {
                 is Resource.Success -> {
@@ -51,10 +71,10 @@ class BalanceViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun insertBalance(from: Balance? = null, balance: Balance) {
+    fun insertBalance(fromBalance: Balance? = null, toBalance: Balance) {
         viewModelScope.launch {
             CoroutineScope(Dispatchers.IO).launch {
-                useCasesExchange.insertBalanceUseCase(from, balance)
+                useCasesExchange.insertBalanceUseCase(fromBalance, toBalance)
 
                 getAllBalances()
             }
