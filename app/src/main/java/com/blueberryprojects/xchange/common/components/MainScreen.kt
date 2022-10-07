@@ -199,7 +199,20 @@ fun MainScreen(
                 }
                 Spacer(modifier = Modifier.height(18.dp))
                 Button(onClick = {
+                    if (toSelectedCurrency.isNotBlank()
+                        && toAmount.isNotBlank() && toAmount.toDouble() > 0.00
+                    ) {
+                        val from = Balance().apply {
+                            currency = fromSelectedCurrency
+                            balance = fromInputAmount.toDouble()
+                        }
+                        val to = Balance().apply {
+                            currency = toSelectedCurrency
+                            balance = toAmount.toDouble()
+                        }
 
+                        balanceViewModel.insertBalance(from, to)
+                    }
                 }, modifier = Modifier
                     .fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {

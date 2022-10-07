@@ -18,14 +18,14 @@ fun BalanceListItem(
     amount: Double,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = Arrangement.SpaceAround,
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)) {
         Text(text = currency,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp)
-        Text(text = amount.toString(),
+        Text(text = String.format("%.2f", amount),
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp)
     }

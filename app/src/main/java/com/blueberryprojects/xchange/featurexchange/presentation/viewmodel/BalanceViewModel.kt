@@ -24,7 +24,7 @@ class BalanceViewModel @Inject constructor(
 
     init {
         if (prefManager.isInitialLaunch) {
-            insertBalance(Balance().apply {
+            insertBalance(balance = Balance().apply {
                 currency = "EUR"
                 balance = 1000.00
             })
@@ -51,10 +51,12 @@ class BalanceViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun insertBalance(balance: Balance) {
+    fun insertBalance(from: Balance? = null, balance: Balance) {
         viewModelScope.launch {
             CoroutineScope(Dispatchers.IO).launch {
-                useCasesExchange.insertBalanceUseCase(balance)
+                useCasesExchange.insertBalanceUseCase(from, balance)
+
+                getAllBalances()
             }
         }
     }

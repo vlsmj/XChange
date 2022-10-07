@@ -8,7 +8,7 @@ class InsertBalanceUseCase @Inject constructor(
     private val repository: BalanceRepository,
 ) {
 
-    operator fun invoke(balance: Balance) {
-        repository.insertBalance(balance)
+    operator fun invoke(from: Balance?, balance: Balance) {
+        repository.insertBalance(from, balance)
     }
 }

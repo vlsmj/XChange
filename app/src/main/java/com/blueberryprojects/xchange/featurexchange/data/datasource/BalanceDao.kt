@@ -9,9 +9,15 @@ import com.blueberryprojects.xchange.featurexchange.domain.model.Balance
 @Dao
 interface BalanceDao {
 
-    @Query("SELECT * FROM balance ORDER BY id DESC")
+    @Query("SELECT * FROM balance ORDER BY currency ASC")
     suspend fun getAllBalances(): List<Balance>
+
+    @Query("SELECT * FROM balance WHERE currency = :currency")
+    fun getBalance(currency: String): Balance?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertBalance(balance: Balance)
+
+    @Query("UPDATE balance SET balance = balance - :newBalance WHERE currency = :currency")
+    fun updateBalance(currency: String, newBalance: Double)
 }

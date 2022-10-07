@@ -8,5 +8,5 @@ interface BalanceRepository {
 
     suspend fun getAllBalances(): Flow<Resource<List<Balance>>>
 
-    fun insertBalance(balance: Balance)
+    fun insertBalance(from: Balance?, balance: Balance)
 }
