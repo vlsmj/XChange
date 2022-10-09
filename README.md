@@ -2,9 +2,9 @@
 XChange is a simple currency exchanger android application that uses MVVM + Retrofit + Room and Clean Architecture. The application uses data from https://api.exchangerate.host.
 
 # Screenshots
-![1](https://user-images.githubusercontent.com/11737795/194744509-5272a19d-af75-4a34-88ba-4127cc9f1f94.png)
-![2](https://user-images.githubusercontent.com/11737795/194744510-22723673-d661-4f90-9505-600ecc614899.png)
-![3](https://user-images.githubusercontent.com/11737795/194744511-f4c9b69c-bd4d-4147-a73e-a348c1aac450.png)
+![1](https://user-images.githubusercontent.com/11737795/194744777-7ab1c176-f913-4653-b832-00d69a1ea9bf.png)
+![2](https://user-images.githubusercontent.com/11737795/194744779-d74a16df-4ef1-4434-907c-ecef755b01c6.png)
+![3](https://user-images.githubusercontent.com/11737795/194744780-b79359f9-83e3-444a-b30f-36847390ebcb.png)
 
 # Core Features
 - Syncs selected currencies conversion rate every 5 seconds (adjustable in the app)
