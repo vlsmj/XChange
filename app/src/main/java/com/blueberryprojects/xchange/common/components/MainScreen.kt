@@ -207,7 +207,6 @@ fun MainScreen(
                     ) {
                         val inputAmount = fromInputAmount.toDouble()
                         val commissionFee = balanceViewModel.getCommissionFee(inputAmount, fromSelectedCurrency)
-                        val balanceAfterFee = balanceViewModel.getBalanceAfterFee(inputAmount, commissionFee)
 
                         if (inputAmount + commissionFee > currentMaxBalance) {
                             titleDialog = "Oops!"
@@ -215,10 +214,12 @@ fun MainScreen(
                         } else {
                             val fromBalance = Balance().apply {
                                 currency = fromSelectedCurrency
-                                balance = balanceAfterFee
+                                balance = inputAmount
                             }
 
-                            val toExchangedBalanceAfterFee = balanceViewModel.getBalanceAfterFee(toAmount.toDouble(), commissionFee)
+                            val balanceAfterFee = balanceViewModel.getBalanceAfterFee(inputAmount, commissionFee)
+                            val toExchangedBalanceAfterFee =
+                                balanceViewModel.getExchangedBalanceAfterFee(inputAmount, balanceAfterFee, toAmount.toDouble())
 
                             val toBalance = Balance().apply {
                                 currency = toSelectedCurrency
@@ -238,6 +239,11 @@ fun MainScreen(
                             fromSelectedCurrency = "Select"
                             toSelectedCurrency = "Select"
                         }
+                    } else if (fromSelectedCurrency != "Select" && toSelectedCurrency != "Select"
+                        && fromSelectedCurrency == toSelectedCurrency
+                    ) {
+                        titleDialog = "Oops!"
+                        messageDialog = "Currencies must not be the same."
                     } else {
                         titleDialog = "Oops!"
                         messageDialog = "Please select the amount first."

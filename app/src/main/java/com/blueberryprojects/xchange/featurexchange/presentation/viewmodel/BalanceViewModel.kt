@@ -58,6 +58,11 @@ class BalanceViewModel @Inject constructor(
         return inputAmount - commissionFee
     }
 
+    fun getExchangedBalanceAfterFee(originalBalance: Double, balanceAfterFee: Double, currentExchangeAmount: Double): Double {
+        val amountPerCurrencyFrom = currentExchangeAmount / originalBalance
+        return amountPerCurrencyFrom * balanceAfterFee
+    }
+
     private fun getAllBalances() {
         useCasesExchange.balancesUseCase().onEach {
             when (it) {
