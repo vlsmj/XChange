@@ -161,13 +161,17 @@ fun MainScreen(
                                 if (fromSelectedCurrency == "Select" || toSelectedCurrency == "Select") {
                                     titleDialog = "Oops!"
                                     messageDialog = "Please select currencies first."
+                                } else if (fromSelectedCurrency == toSelectedCurrency) {
+                                    titleDialog = "Oops!"
+                                    messageDialog = "Currencies must not be the same."
                                 }
                             }
                             .fillMaxWidth(),
                             hint = "From",
                             text = fromInputAmount,
                             maxValue = currentMaxBalance,
-                            isEnabled = fromSelectedCurrency != "Select" && toSelectedCurrency != "Select") { input ->
+                            isEnabled = (fromSelectedCurrency != "Select" && toSelectedCurrency != "Select")
+                                    && (fromSelectedCurrency != toSelectedCurrency)) { input ->
                             fromInputAmount = input
                         }
                     }
@@ -202,9 +206,18 @@ fun MainScreen(
                 }
                 Spacer(modifier = Modifier.height(18.dp))
                 Button(onClick = {
-                    if (toSelectedCurrency.isNotBlank()
-                        && toAmount.isNotBlank() && toAmount.toDouble() > 0.00
+                    if (fromSelectedCurrency != "Select" && toSelectedCurrency != "Select"
+                        && fromSelectedCurrency == toSelectedCurrency
                     ) {
+                        titleDialog = "Oops!"
+                        messageDialog = "Currencies must not be the same."
+
+                        fromInputAmount = ""
+                        toAmount = ""
+                    } else if (toAmount.isBlank()) {
+                        titleDialog = "Oops!"
+                        messageDialog = "Please select the amount first."
+                    } else {
                         val inputAmount = fromInputAmount.toDouble()
                         val commissionFee = balanceViewModel.getCommissionFee(inputAmount, fromSelectedCurrency)
 
@@ -239,14 +252,6 @@ fun MainScreen(
                             fromSelectedCurrency = "Select"
                             toSelectedCurrency = "Select"
                         }
-                    } else if (fromSelectedCurrency != "Select" && toSelectedCurrency != "Select"
-                        && fromSelectedCurrency == toSelectedCurrency
-                    ) {
-                        titleDialog = "Oops!"
-                        messageDialog = "Currencies must not be the same."
-                    } else {
-                        titleDialog = "Oops!"
-                        messageDialog = "Please select the amount first."
                     }
                 }, modifier = Modifier
                     .fillMaxWidth(),
