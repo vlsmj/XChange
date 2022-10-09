@@ -7,7 +7,7 @@ XChange is a simple currency exchanger android application that uses MVVM + Retr
 ![3](https://user-images.githubusercontent.com/11737795/194744511-f4c9b69c-bd4d-4147-a73e-a348c1aac450.png)
 
 # Core Features
-- Syncs selected currencies conversion rate every 5 seconds (Adjustable in the app)
+- Syncs selected currencies conversion rate every 5 seconds (adjustable in the app)
 - Jetpack Compose
 - Kotlin
 - MVVM
